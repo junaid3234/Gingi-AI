@@ -1,5 +1,4 @@
 {
   "framework": "nextjs",
-  "rootDirectory": "frontend",
-  "installCommand": "npm install --legacy-peer-deps"
+  "rootDirectory": "frontend"
 }
