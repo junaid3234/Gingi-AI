@@ -1,10 +1,19 @@
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_db() -> str:
+    """Use DATABASE_URL env var if set (Railway PostgreSQL), else SQLite fallback."""
+    return os.environ.get(
+        "DATABASE_URL",
+        "sqlite+aiosqlite:///./gingiai.db"
+    )
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql+asyncpg://gingiai:gingiai_dev_password@localhost:5432/gingiai"
+    database_url: str = _default_db()
     jwt_secret: str = "dev-secret-change-in-production-min-32-chars"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
