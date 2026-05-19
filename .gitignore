@@ -1,0 +1,53 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ── Node / Next.js ───────────────────────────────────────
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+.npm/
+
+# ── Environment & secrets ────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# ── Database files ───────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Build artifacts ──────────────────────────────────────
+*.pyc
+*.pyd
+*.so
+*.egg
+
+# ── IDE ──────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Docker ───────────────────────────────────────────────
+# (keep Dockerfiles, ignore volumes)
+
+# ── ML model binaries (optional — uncomment to exclude) ──
+# *.joblib
+# *.pkl
