@@ -131,7 +131,7 @@ export function Footer() {
             <Heart className="h-3.5 w-3.5 fill-rose-500 text-rose-500" />
             {" "}by{" "}
             <a
-              href="https://jvxlabs.com"
+              href="https://www.instagram.com/jvxlabs?igsh=NHlqeHIzbTRuZnUy"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-[var(--primary)] transition-opacity hover:opacity-80"
