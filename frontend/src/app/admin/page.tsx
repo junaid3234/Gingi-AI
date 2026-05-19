@@ -22,8 +22,6 @@ import { Card } from "@/components/ui/card";
 
 const PIE_COLORS = ["#10b981", "#f59e0b", "#f97316", "#ef4444", "#64748b"];
 
-const STAT_ICONS = [Users, Activity, CheckCircle2, TrendingUp];
-
 export default function AdminPage() {
   const [data, setData] = useState<AnalyticsOverview | null>(null);
   const [search, setSearch] = useState("");
@@ -129,11 +127,11 @@ export default function AdminPage() {
                     outerRadius={90}
                     strokeWidth={0}
                     label={({ name, percent }) =>
-                      percent > 0 ? `${name} ${(percent * 100).toFixed(0)}%` : ""
+                      (percent ?? 0) > 0 ? `${name} ${((percent ?? 0) * 100).toFixed(0)}%` : ""
                     }
                   >
-                    {severityChart.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    {severityChart.map((_, idx) => (
+                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   Bar,
   BarChart,
@@ -29,12 +29,12 @@ const SEVERITY_COLORS: Record<string, string> = {
   severe: "#ef4444",
 };
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+    transition: { delay: i * 0.08, duration: 0.45, ease: "easeOut" as const },
   }),
 };
 
