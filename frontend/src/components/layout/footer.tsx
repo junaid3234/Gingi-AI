@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Stethoscope, Heart, Github, Twitter, Linkedin } from "lucide-react";
+import { Stethoscope, Heart, GitFork, Globe, Rss } from "lucide-react";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -15,7 +15,7 @@ export function Footer() {
           <div className="md:col-span-1">
             <div className="mb-4 flex items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl gradient-brand text-white shadow-lg">
-                <Stethoscope className="h-4.5 w-4.5" />
+                <Stethoscope className="h-5 w-5" />
               </span>
               <span className="gradient-text text-lg font-bold tracking-tight">GingiAI</span>
             </div>
@@ -24,31 +24,29 @@ export function Footer() {
             </p>
             <div className="mt-5 flex items-center gap-3">
               <a
-                href="https://github.com"
+                href="https://github.com/vkchavan/GingiAI"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
               >
-                <Github className="h-4 w-4" />
+                <GitFork className="h-4 w-4" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://jvxlabs.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Twitter"
+                aria-label="JVX Labs website"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
               >
-                <Twitter className="h-4 w-4" />
+                <Globe className="h-4 w-4" />
               </a>
               <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
+                href="#"
+                aria-label="Blog"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
               >
-                <Linkedin className="h-4 w-4" />
+                <Rss className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -126,7 +124,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="text-xs text-[var(--muted-foreground)]">
-            © {year} GingiAI. All rights reserved.
+            &copy; {year} GingiAI. All rights reserved.
           </p>
           <p className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
             Made with{" "}
