@@ -1,13 +1,22 @@
 import os
+from functools import lru_cache
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def normalize_database_url(url: str) -> str:
+    """Convert Railway/Heroku postgres URLs to async SQLAlchemy format."""
+    if url.startswith("postgres://"):
+        return "postgresql+asyncpg://" + url[len("postgres://") :]
+    if url.startswith("postgresql://"):
+        return "postgresql+asyncpg://" + url[len("postgresql://") :]
+    return url
+
+
 def _default_db() -> str:
-    """Use DATABASE_URL env var if set (Railway PostgreSQL), else SQLite fallback."""
-    return os.environ.get(
-        "DATABASE_URL",
-        "sqlite+aiosqlite:///./gingiai.db"
-    )
+    raw = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./gingiai.db")
+    return normalize_database_url(raw)
 
 
 class Settings(BaseSettings):
@@ -24,5 +33,15 @@ class Settings(BaseSettings):
     app_name: str = "GingiAI API"
     debug: bool = False
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalize_db(cls, value: str) -> str:
+        return normalize_database_url(value)
 
-settings = Settings()
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

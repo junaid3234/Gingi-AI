@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // No "standalone" — Vercel handles its own output format
+  output: process.env.DOCKER_BUILD === "1" ? "standalone" : undefined,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.vercel.app" },

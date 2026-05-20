@@ -125,6 +125,14 @@ Copy `.env.example` to `.env` and fill in:
 
 ---
 
+## Deploy on Railway
+
+1. Create a Railway project and add **PostgreSQL**.
+2. **Backend** service — set **Root Directory** to the repo root (`.`), link Postgres, set `JWT_SECRET` and `CORS_ORIGINS` (your frontend URL).
+3. **Frontend** service — set **Root Directory** to `frontend`, set `NEXT_PUBLIC_API_URL` to the backend public URL, then deploy.
+
+Full step-by-step: [Deployment Guide](./docs/DEPLOYMENT.md).
+
 ## Docs
 
 - [API Reference](./docs/API.md)
