@@ -51,3 +51,5 @@ logs/
 # ── ML model binaries (optional — uncomment to exclude) ──
 # *.joblib
 # *.pkl
+.vercel
+.env*.local
