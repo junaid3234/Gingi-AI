@@ -98,7 +98,7 @@ export default function AdminPage() {
 
         {/* Stat cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((s, i) => (
+          {statCards.map((s) => (
             <Card key={s.label} className="flex items-center gap-4">
               <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${s.bg}`}>
                 <s.icon className={`h-5 w-5 ${s.color}`} />
