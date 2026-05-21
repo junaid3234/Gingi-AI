@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,9 +15,12 @@ if _is_postgres:
     _UUID = PG_UUID(as_uuid=True)
     _JSONB = JSONB
 else:
-    from sqlalchemy import String as _StrType
     _UUID = String(36)   # store UUID as string in SQLite
     _JSONB = JSON        # use generic JSON for SQLite
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class User(Base):
@@ -28,8 +31,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     full_name: Mapped[str | None] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(50), default="patient")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
     sessions: Mapped[list["Session"]] = relationship(back_populates="user")
 
@@ -42,8 +45,9 @@ class Session(Base):
     status: Mapped[str] = mapped_column(String(50), default="in_progress")
     current_section: Mapped[str | None] = mapped_column(String(10))
     current_question_index: Mapped[int] = mapped_column(Integer, default=0)
-    conversation_json: Mapped[dict] = mapped_column(_JSONB, default=list)
-    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    # Stored as a JSON array of message dicts
+    conversation_json: Mapped[list] = mapped_column(_JSONB, default=list)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped["User | None"] = relationship(back_populates="sessions")
@@ -62,7 +66,7 @@ class Response(Base):
     question_text: Mapped[str | None] = mapped_column(Text)
     answer_value: Mapped[str] = mapped_column(Text, nullable=False)
     answer_type: Mapped[str] = mapped_column(String(50), default="choice")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     session: Mapped["Session"] = relationship(back_populates="responses")
 
@@ -78,9 +82,9 @@ class Prediction(Base):
     severity_score: Mapped[float | None] = mapped_column(Numeric(5, 2))
     confidence: Mapped[float] = mapped_column(Numeric(5, 4), nullable=False)
     risk_level: Mapped[str | None] = mapped_column(String(50))
-    feature_importance: Mapped[dict | None] = mapped_column(_JSONB)
+    feature_importance: Mapped[list | None] = mapped_column(_JSONB)
     model_version: Mapped[str] = mapped_column(String(50), default="rf_v1")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     session: Mapped["Session"] = relationship(back_populates="predictions")
 
@@ -94,6 +98,7 @@ class Report(Base):
     user_id: Mapped[uuid.UUID | None] = mapped_column(_UUID, ForeignKey("users.id"), nullable=True)
     title: Mapped[str] = mapped_column(String(255), default="Gingivitis Screening Report")
     summary: Mapped[str | None] = mapped_column(Text)
+    # Stored as {"items": [...]} for backward compat; use .get("items", []) to read
     recommendations: Mapped[dict | None] = mapped_column(_JSONB)
     pdf_path: Mapped[str | None] = mapped_column(String(500))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

@@ -18,6 +18,7 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 @router.get("/overview", response_model=AnalyticsOverview)
 async def analytics_overview(
     db: AsyncSession = Depends(get_db),
+    _user: str = Depends(require_auth),  # require auth — this endpoint exposes aggregate user data
 ):
     total_users = (await db.execute(select(func.count(User.id)))).scalar() or 0
     total_screenings = (await db.execute(select(func.count(Session.id)))).scalar() or 0
@@ -68,9 +69,14 @@ async def analytics_overview(
 async def export_csv(
     db: AsyncSession = Depends(get_db),
     _user: str = Depends(require_auth),
-    search: str | None = Query(None),
+    search: str | None = Query(None, description="Filter by severity (e.g. 'mild', 'moderate')"),
 ):
-    preds = (await db.execute(select(Prediction).order_by(Prediction.created_at.desc()))).scalars().all()
+    query = select(Prediction).order_by(Prediction.created_at.desc())
+    # Apply search filter on severity if provided
+    if search:
+        query = query.where(Prediction.severity.ilike(f"%{search}%"))
+
+    preds = (await db.execute(query)).scalars().all()
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow(["session_id", "has_gingivitis", "severity", "confidence", "risk_level", "created_at"])

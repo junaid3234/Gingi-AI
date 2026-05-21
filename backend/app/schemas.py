@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class TokenResponse(BaseModel):
@@ -90,6 +90,14 @@ class ReportResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_validator("recommendations", mode="before")
+    @classmethod
+    def _unwrap_recommendations(cls, v: Any) -> list[str] | None:
+        """Handle both list[str] and {"items": [...]} dict formats."""
+        if isinstance(v, dict):
+            return v.get("items") or []
+        return v
 
 
 class AnalyticsOverview(BaseModel):

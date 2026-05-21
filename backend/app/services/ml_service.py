@@ -42,24 +42,52 @@ RECOMMENDATIONS = {
 }
 
 
+def _resolve_model_path() -> Path:
+    """Resolve model path with multiple fallback locations."""
+    # 1. Explicit env var (absolute path, e.g. set by Railway/Docker)
+    env_path = Path(settings.model_path)
+    if env_path.is_absolute() and env_path.exists():
+        return env_path
+
+    # 2. Relative to repo root (works in Docker where /ml-model is copied)
+    docker_path = Path("/ml-model/models/gingivitis_rf_model.joblib")
+    if docker_path.exists():
+        return docker_path
+
+    # 3. Relative to this file: backend/app/services/ → ../../.. → repo root
+    repo_root = Path(__file__).resolve().parents[3]
+    repo_path = repo_root / "ml-model" / "models" / "gingivitis_rf_model.joblib"
+    if repo_path.exists():
+        return repo_path
+
+    # 4. Relative to cwd (local dev fallback)
+    cwd_path = Path("ml-model/models/gingivitis_rf_model.joblib")
+    if cwd_path.exists():
+        return cwd_path
+
+    return env_path  # return configured path even if missing (will log warning)
+
+
 def load_model() -> dict:
     global _artifact
     if _artifact is not None:
         return _artifact
 
-    path = Path(settings.model_path)
-    if not path.is_absolute():
-        repo_model = Path(__file__).resolve().parents[3] / "ml-model" / "models" / "gingivitis_rf_model.joblib"
-        path = repo_model if repo_model.exists() else Path(settings.model_path)
+    path = _resolve_model_path()
 
     if not path.exists():
         logger.warning("Model not found at %s — using rule-based fallback", path)
         _artifact = {"fallback": True}
         return _artifact
 
-    _artifact = joblib.load(path)
-    _artifact["fallback"] = False
-    logger.info("Loaded ML model from %s", path)
+    try:
+        _artifact = joblib.load(path)
+        _artifact["fallback"] = False
+        logger.info("Loaded ML model from %s", path)
+    except Exception as exc:
+        logger.error("Failed to load model from %s: %s — using fallback", path, exc)
+        _artifact = {"fallback": True}
+
     return _artifact
 
 
@@ -104,48 +132,55 @@ def predict(features: dict[str, Any]) -> dict[str, Any]:
     if artifact.get("fallback"):
         result = _rule_based_predict(features)
     else:
-        pipeline = artifact["gingivitis_pipeline"]
-        severity_pipeline = artifact["severity_pipeline"]
-        cols = artifact["feature_columns"]
-
-        row = pd.DataFrame([{k: str(features.get(k, "")) for k in cols}])
-        if "age" in cols:
-            try:
-                row["age"] = int(float(features.get("age", 25)))
-            except (TypeError, ValueError):
-                row["age"] = 25
-
-        proba = pipeline.predict_proba(row)[0]
-        has_gingivitis = bool(pipeline.predict(row)[0])
-        confidence = float(max(proba))
-        severity = str(severity_pipeline.predict(row)[0])
-        sev_proba = severity_pipeline.predict_proba(row)[0]
-        classes = list(severity_pipeline.named_steps["classifier"].classes_)
-        severity_scores = {c: float(p) for c, p in zip(classes, sev_proba)}
-
-        clf = pipeline.named_steps["classifier"]
-        pre = pipeline.named_steps["preprocessor"]
-        importances = clf.feature_importances_
         try:
-            names = pre.get_feature_names_out()
-        except Exception:
-            names = [f"f{i}" for i in range(len(importances))]
-        top_idx = importances.argsort()[-8:][::-1]
-        top_factors = [
-            {"feature": str(names[i]), "importance": float(importances[i])}
-            for i in top_idx
-        ]
+            pipeline = artifact["gingivitis_pipeline"]
+            severity_pipeline = artifact["severity_pipeline"]
+            cols = artifact["feature_columns"]
 
-        risk_map = {"none": "low", "mild": "moderate", "moderate": "high", "severe": "critical"}
-        result = {
-            "has_gingivitis": has_gingivitis,
-            "confidence": confidence,
-            "severity": severity,
-            "severity_score": severity_scores.get(severity, confidence),
-            "risk_level": risk_map.get(severity, "moderate"),
-            "feature_importance": top_factors,
-            "model_version": artifact.get("version", "rf_v1"),
-        }
+            # Build input row — cast all to str, then fix numeric age
+            row = pd.DataFrame([{k: str(features.get(k, "")) for k in cols}])
+            if "age" in cols:
+                try:
+                    row["age"] = int(float(features.get("age", 25)))
+                except (TypeError, ValueError):
+                    row["age"] = 25
+
+            proba = pipeline.predict_proba(row)[0]
+            has_gingivitis = bool(pipeline.predict(row)[0])
+            confidence = float(max(proba))
+
+            severity = str(severity_pipeline.predict(row)[0])
+            sev_proba = severity_pipeline.predict_proba(row)[0]
+            classes = list(severity_pipeline.named_steps["classifier"].classes_)
+            severity_scores = {c: float(p) for c, p in zip(classes, sev_proba)}
+
+            # Feature importance from the gingivitis pipeline
+            clf = pipeline.named_steps["classifier"]
+            pre = pipeline.named_steps["preprocessor"]
+            importances = clf.feature_importances_
+            try:
+                names = pre.get_feature_names_out()
+            except Exception:
+                names = [f"f{i}" for i in range(len(importances))]
+            top_idx = importances.argsort()[-8:][::-1]
+            top_factors = [
+                {"feature": str(names[i]), "importance": float(importances[i])}
+                for i in top_idx
+            ]
+
+            risk_map = {"none": "low", "mild": "moderate", "moderate": "high", "severe": "critical"}
+            result = {
+                "has_gingivitis": has_gingivitis,
+                "confidence": confidence,
+                "severity": severity,
+                "severity_score": severity_scores.get(severity, confidence),
+                "risk_level": risk_map.get(severity, "moderate"),
+                "feature_importance": top_factors,
+                "model_version": artifact.get("version", "rf_v2"),
+            }
+        except Exception as exc:
+            logger.error("ML pipeline inference failed: %s — falling back to rule-based", exc)
+            result = _rule_based_predict(features)
 
     risk = result["risk_level"]
     recs = RECOMMENDATIONS.get(risk, RECOMMENDATIONS["moderate"])

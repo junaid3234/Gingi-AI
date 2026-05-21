@@ -30,7 +30,15 @@ async def start_chat(
     db: AsyncSession = Depends(get_db),
     user_id: str | None = Depends(get_current_user_id),
 ):
+    from app.models import User as UserModel
+    resolved_user_id = None
+    if user_id:
+        u = (await db.execute(select(UserModel).where(UserModel.clerk_id == user_id))).scalar_one_or_none()
+        if u:
+            resolved_user_id = u.id
+
     session = Session(
+        user_id=resolved_user_id,
         status="in_progress",
         current_section="A",
         current_question_index=0,

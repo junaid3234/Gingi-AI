@@ -32,18 +32,24 @@ DATA_DIR = Path(__file__).parent / "data"
 
 
 def generate_synthetic_data(n_samples: int = 2000) -> pd.DataFrame:
-    """Generate realistic synthetic screening data for demo/training."""
+    """Generate realistic synthetic screening data for demo/training.
+
+    IMPORTANT: All category values here MUST exactly match the options in
+    backend/app/services/questions.py to avoid unknown-category encoding.
+    """
     rng = np.random.default_rng(RANDOM_STATE)
 
-    genders = ["Male", "Female", "Other", "Prefer not to say"]
-    residence = ["Urban", "Suburban", "Rural"]
+    # ── Must match questions.py exactly ──────────────────────────────────────
+    genders = ["Male", "Female", "Other"]
+    year_of_study = ["I BDS", "II BDS", "III BDS", "IV BDS", "Intern", "N/A"]
+    residence = ["Home", "Hostel", "Urban", "Rural"]
     tobacco = ["Never", "Former", "Occasional", "Daily"]
-    systemic = ["None", "Diabetes", "Hypertension", "Other"]
-    freq = ["Never", "Once daily", "Twice daily", "Three or more times"]
+    systemic = ["None", "Diabetes", "Hypertension", "Heart Disease", "Other"]
+    freq = ["Once daily", "Twice daily", "Three or more times daily", "Never"]
     duration = ["Less than 1 min", "1-2 min", "2-3 min", "More than 3 min"]
     brush_type = ["Manual", "Electric", "Both"]
     replacement = ["Every 1-2 months", "Every 3 months", "Every 6 months", "Rarely"]
-    paste = ["Fluoride", "Herbal", "Whitening", "Sensitive", "Other"]
+    paste = ["Fluoride", "Sensitive", "Herbal", "Whitening", "Other"]
     interdental = ["Never", "Rarely", "Sometimes", "Often", "Always"]
     mouthwash = ["Never", "Sometimes", "Daily"]
     dental_visit = ["Never", "Less than yearly", "Yearly", "Every 6 months"]
@@ -56,7 +62,7 @@ def generate_synthetic_data(n_samples: int = 2000) -> pd.DataFrame:
     data = {
         "age": rng.integers(18, 65, n_samples),
         "gender": rng.choice(genders, n_samples),
-        "year_of_study": rng.choice(["1", "2", "3", "4", "5+", "N/A"], n_samples),
+        "year_of_study": rng.choice(year_of_study, n_samples),
         "place_of_residence": rng.choice(residence, n_samples),
         "tobacco_use": rng.choice(tobacco, n_samples),
         "systemic_conditions": rng.choice(systemic, n_samples),
@@ -106,7 +112,6 @@ def generate_synthetic_data(n_samples: int = 2000) -> pd.DataFrame:
 
     df["has_gingivitis"] = (risk > 1.8).astype(int)
     severity = np.where(risk <= 1.0, 0, np.where(risk <= 2.0, 1, np.where(risk <= 3.0, 2, 3)))
-    df["severity"] = ["none", "mild", "moderate", "severe"][0]  # placeholder
     df["severity"] = pd.Categorical(
         [["none", "mild", "moderate", "severe"][s] for s in severity],
         categories=["none", "mild", "moderate", "severe"],
@@ -161,7 +166,6 @@ def train(data_path: str | None = None) -> dict:
     pipeline.fit(X_train, y_train)
 
     y_pred = pipeline.predict(X_test)
-    y_proba = pipeline.predict_proba(X_test)[:, 1]
 
     metrics = {
         "accuracy": float(accuracy_score(y_test, y_pred)),
@@ -172,18 +176,17 @@ def train(data_path: str | None = None) -> dict:
         "n_test": len(X_test),
     }
 
-    # Severity model (multi-class on subset with gingivitis features)
-    severity_pipeline = build_pipeline()
+    # Severity model (multi-class)
     y_sev = df["severity"].astype(str)
     X_tr, X_te, y_tr, y_te = train_test_split(X, y_sev, test_size=0.2, random_state=RANDOM_STATE)
-    severity_clf = RandomForestClassifier(
-        n_estimators=150, max_depth=10, random_state=RANDOM_STATE, n_jobs=-1
-    )
     sev_preprocessor = ColumnTransformer(
         transformers=[
             ("num", StandardScaler(), NUMERIC_FEATURES),
             ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), CATEGORICAL_FEATURES),
         ]
+    )
+    severity_clf = RandomForestClassifier(
+        n_estimators=150, max_depth=10, random_state=RANDOM_STATE, n_jobs=-1
     )
     severity_pipeline = Pipeline([
         ("preprocessor", sev_preprocessor),
@@ -198,7 +201,7 @@ def train(data_path: str | None = None) -> dict:
         "severity_pipeline": severity_pipeline,
         "feature_columns": FEATURE_COLUMNS,
         "metrics": metrics,
-        "version": "rf_google_form_v1",
+        "version": "rf_v2",
         "data_source": str(data_path or default_dataset),
         "n_samples": len(df),
     }
