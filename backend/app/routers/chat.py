@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_current_user_id
-from app.database import get_db
+from app.database import get_db, to_db_id
 from app.models import Response as ResponseModel
 from app.models import Session
 from app.schemas import ChatAnswerRequest, ChatAnswerResponse, ChatMessage, ChatStartResponse
@@ -71,7 +71,7 @@ async def answer_question(
     db: AsyncSession = Depends(get_db),
     user_id: str | None = Depends(get_current_user_id),
 ):
-    result = await db.execute(select(Session).where(Session.id == body.session_id))
+    result = await db.execute(select(Session).where(Session.id == to_db_id(body.session_id)))
     session = result.scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -154,7 +154,7 @@ async def answer_question(
 
 @router.get("/session/{session_id}")
 async def get_session_conversation(session_id: UUID, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Session).where(Session.id == session_id))
+    result = await db.execute(select(Session).where(Session.id == to_db_id(session_id)))
     session = result.scalar_one_or_none()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")

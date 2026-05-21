@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import require_auth
-from app.database import get_db
+from app.database import get_db, to_db_id
 from app.models import Prediction, Session, User
 from app.schemas import AnalyticsOverview
 
@@ -44,7 +44,7 @@ async def analytics_overview(
     recent = []
     for s in recent_sessions:
         pred_r = await db.execute(
-            select(Prediction).where(Prediction.session_id == s.id).order_by(Prediction.created_at.desc())
+            select(Prediction).where(Prediction.session_id == to_db_id(s.id)).order_by(Prediction.created_at.desc())
         )
         pred = pred_r.scalars().first()
         recent.append({

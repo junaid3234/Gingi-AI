@@ -1,5 +1,6 @@
 import os
 from collections.abc import AsyncGenerator
+from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -28,6 +29,21 @@ async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit
 
 class Base(DeclarativeBase):
     pass
+
+
+def to_db_id(value) -> str | UUID:
+    """
+    Normalise a UUID value for DB queries.
+    SQLite stores UUIDs as str(36); PostgreSQL uses native UUID.
+    Always pass the result of this into .where(Model.id == to_db_id(x)).
+    """
+    _is_postgres = "postgresql" in settings.database_url or "asyncpg" in settings.database_url
+    if _is_postgres:
+        if isinstance(value, UUID):
+            return value
+        return UUID(str(value))
+    else:
+        return str(value)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

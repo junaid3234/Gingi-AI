@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
+from app.database import get_db, to_db_id
 from app.models import Prediction, Report, Response, Session
 
 router = APIRouter(prefix="/reports", tags=["reports"])
@@ -15,13 +15,13 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 @router.get("/session/{session_id}")
 async def get_report(session_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Report).where(Report.session_id == session_id).order_by(Report.created_at.desc())
+        select(Report).where(Report.session_id == to_db_id(session_id)).order_by(Report.created_at.desc())
     )
     report = result.scalars().first()
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     pred_result = await db.execute(
-        select(Prediction).where(Prediction.session_id == session_id).order_by(Prediction.created_at.desc())
+        select(Prediction).where(Prediction.session_id == to_db_id(session_id)).order_by(Prediction.created_at.desc())
     )
     prediction = pred_result.scalars().first()
     return {
@@ -47,13 +47,13 @@ async def download_pdf(session_id: UUID, db: AsyncSession = Depends(get_db)):
     from reportlab.lib.pagesizes import letter
     from reportlab.pdfgen import canvas
 
-    result = await db.execute(select(Report).where(Report.session_id == session_id))
+    result = await db.execute(select(Report).where(Report.session_id == to_db_id(session_id)))
     report = result.scalars().first()
     pred_result = await db.execute(
-        select(Prediction).where(Prediction.session_id == session_id).order_by(Prediction.created_at.desc())
+        select(Prediction).where(Prediction.session_id == to_db_id(session_id)).order_by(Prediction.created_at.desc())
     )
     prediction = pred_result.scalars().first()
-    resp_result = await db.execute(select(Response).where(Response.session_id == session_id))
+    resp_result = await db.execute(select(Response).where(Response.session_id == to_db_id(session_id)))
     responses = resp_result.scalars().all()
 
     buffer = io.BytesIO()
