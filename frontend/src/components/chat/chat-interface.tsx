@@ -168,11 +168,11 @@ export function ChatInterface() {
 
   // ── Main UI ──────────────────────────────────────────────────────────────
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-0 px-4 pb-8 pt-4 lg:flex-row lg:items-start lg:gap-5">
+    <div className="flex h-full max-w-5xl mx-auto flex-col gap-0 px-4 py-4 lg:flex-row lg:items-stretch lg:gap-5">
 
       {/* ── Sidebar ── */}
-      <aside className="hidden w-64 shrink-0 lg:block">
-        <div className="sticky top-24 space-y-4">
+      <aside className="hidden w-64 shrink-0 overflow-y-auto lg:block">
+        <div className="space-y-4 py-1 pr-1">
           {/* Gingi card */}
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-3">
@@ -235,8 +235,7 @@ export function ChatInterface() {
       </aside>
 
       {/* ── Chat panel ── */}
-      <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-lg overflow-hidden"
-           style={{ height: "calc(100vh - 7rem)", minHeight: 560 }}>
+      <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-lg overflow-hidden">
 
         {/* Header */}
         <div className="shrink-0 border-b border-[var(--border)] bg-[var(--card)] px-5 py-4">

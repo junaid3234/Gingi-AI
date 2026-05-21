@@ -8,10 +8,11 @@ export const metadata = {
 
 export default function ScreeningPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      {/* Page header */}
-      <div className="border-b border-[var(--border)] bg-[var(--card)] px-4 py-5 shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
+    /* Lock the entire page to viewport height — no page scroll at all */
+    <div className="flex h-screen flex-col overflow-hidden bg-[var(--background)]">
+      {/* Page header — fixed height */}
+      <div className="shrink-0 border-b border-[var(--border)] bg-[var(--card)] px-4 py-4 shadow-sm">
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-brand text-white shadow-md">
             <Stethoscope className="h-5 w-5" />
           </div>
@@ -23,7 +24,11 @@ export default function ScreeningPage() {
           </div>
         </div>
       </div>
-      <ChatInterface />
+
+      {/* Chat fills the remaining height exactly */}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <ChatInterface />
+      </div>
     </div>
   );
 }
