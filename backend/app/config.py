@@ -20,7 +20,7 @@ def _default_db() -> str:
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     database_url: str = _default_db()
     jwt_secret: str = "dev-secret-change-in-production-min-32-chars"
