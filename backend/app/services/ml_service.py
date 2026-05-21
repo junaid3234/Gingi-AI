@@ -49,9 +49,8 @@ def load_model() -> dict:
 
     path = Path(settings.model_path)
     if not path.is_absolute():
-        path = Path(__file__).resolve().parents[3] / "ml-model" / "models" / "gingivitis_rf_model.joblib"
-        if not path.exists():
-            path = Path(settings.model_path)
+        repo_model = Path(__file__).resolve().parents[3] / "ml-model" / "models" / "gingivitis_rf_model.joblib"
+        path = repo_model if repo_model.exists() else Path(settings.model_path)
 
     if not path.exists():
         logger.warning("Model not found at %s — using rule-based fallback", path)
