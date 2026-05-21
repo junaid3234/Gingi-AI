@@ -1,4 +1,3 @@
-# Backend API service — set Railway service Root Directory to repository root (.)
 [build]
 builder = "dockerfile"
 dockerfilePath = "backend/Dockerfile"
@@ -6,6 +5,6 @@ dockerfilePath = "backend/Dockerfile"
 [deploy]
 startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
