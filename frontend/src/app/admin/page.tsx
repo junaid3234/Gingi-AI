@@ -80,6 +80,8 @@ export default function AdminPage() {
           </div>
           <a
             href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/analytics/export`}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <Button variant="outline">
               <Download className="h-4 w-4" />

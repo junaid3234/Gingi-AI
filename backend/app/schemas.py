@@ -19,7 +19,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: UUID
+    id: str
     clerk_id: str
     email: str
     full_name: str | None

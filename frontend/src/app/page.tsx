@@ -49,7 +49,7 @@ const features = [
 
 const stats = [
   { label: "Screening Accuracy", value: "83%", desc: "Validated on clinical dataset" },
-  { label: "Questions Covered", value: "28", desc: "Across 4 clinical sections" },
+  { label: "Questions Covered", value: "27", desc: "Across 4 clinical sections" },
   { label: "Avg. Completion", value: "8 min", desc: "Per screening session" },
   { label: "Severity Classes", value: "4", desc: "None · Mild · Moderate · Severe" },
 ];

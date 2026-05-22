@@ -15,12 +15,21 @@ export default function ResultsPage() {
   useEffect(() => {
     const cached = sessionStorage.getItem(`gingiai-result-${sessionId}`);
     if (cached) {
-      setResult(JSON.parse(cached));
+      try {
+        setResult(JSON.parse(cached));
+      } catch {
+        sessionStorage.removeItem(`gingiai-result-${sessionId}`);
+        setError("Cached result was corrupted. Please complete a new screening.");
+      }
       return;
     }
+    // No cache — re-run prediction for this session (idempotent for completed sessions)
     api
       .predict(sessionId)
-      .then(setResult)
+      .then((res) => {
+        sessionStorage.setItem(`gingiai-result-${sessionId}`, JSON.stringify(res));
+        setResult(res);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load results"));
   }, [sessionId]);
 
