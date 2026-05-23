@@ -15,17 +15,15 @@ const SECTION_LABELS: Record<string, string> = {
   A: "Basic Information",
   B: "Oral Hygiene",
   C: "Gingival Symptoms",
-  D: "Clinical Assessment",
 };
 
 const SECTION_COLORS: Record<string, string> = {
   A: "bg-sky-500/10 text-sky-600 border-sky-200 dark:border-sky-800 dark:text-sky-400",
   B: "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400",
   C: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-800 dark:text-rose-400",
-  D: "bg-violet-500/10 text-violet-600 border-violet-200 dark:border-violet-800 dark:text-violet-400",
 };
 
-const TOTAL_QUESTIONS = 27;
+const TOTAL_QUESTIONS = 25;
 
 export function ChatInterface() {
   const router = useRouter();

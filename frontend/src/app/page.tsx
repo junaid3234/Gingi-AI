@@ -7,10 +7,8 @@ import {
   Brain,
   MessageSquare,
   Shield,
-  Sparkles,
   Users,
   ArrowRight,
-  Quote,
 } from "lucide-react";
 import { Hero } from "@/components/landing/hero";
 import { Button } from "@/components/ui/button";
@@ -49,26 +47,9 @@ const features = [
 
 const stats = [
   { label: "Screening Accuracy", value: "83%", desc: "Validated on clinical dataset" },
-  { label: "Questions Covered", value: "27", desc: "Across 4 clinical sections" },
+  { label: "Questions Covered", value: "25", desc: "Across 3 clinical sections" },
   { label: "Avg. Completion", value: "8 min", desc: "Per screening session" },
-  { label: "Severity Classes", value: "4", desc: "None · Mild · Moderate · Severe" },
-];
-
-const testimonials = [
-  {
-    quote:
-      "GingiAI transformed our student dental screening program with an intuitive AI workflow.",
-    author: "Dr. Sarah Chen",
-    role: "Dental Public Health",
-    initials: "SC",
-  },
-  {
-    quote:
-      "The conversational interface made patients comfortable sharing sensitive gum symptoms.",
-    author: "James Okonkwo",
-    role: "Clinical Researcher",
-    initials: "JO",
-  },
+  { label: "Severity Classes", value: "3", desc: "Mild · Moderate · Severe" },
 ];
 
 const workflow = [
@@ -217,56 +198,6 @@ export default function HomePage() {
                 <p className="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">
                   {w.desc}
                 </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section className="border-t border-[var(--border)] bg-[var(--muted)] px-4 py-24 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="mb-14 text-center"
-          >
-            <span className="mb-3 inline-block rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
-              Testimonials
-            </span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-4xl">
-              Trusted by <span className="gradient-text">clinicians</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.author}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-              >
-                <Card className="relative p-8">
-                  <Quote className="absolute right-6 top-6 h-8 w-8 text-[var(--border)]" />
-                  <Sparkles className="mb-4 h-5 w-5 text-teal-500" />
-                  <p className="text-base leading-relaxed text-[var(--foreground)]">
-                    &ldquo;{t.quote}&rdquo;
-                  </p>
-                  <div className="mt-6 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-brand text-sm font-bold text-white">
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[var(--foreground)]">{t.author}</p>
-                      <p className="text-sm text-[var(--muted-foreground)]">{t.role}</p>
-                    </div>
-                  </div>
-                </Card>
               </motion.div>
             ))}
           </div>

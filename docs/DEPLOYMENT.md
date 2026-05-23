@@ -102,12 +102,24 @@ python train.py
 
 ## Vercel (frontend only)
 
+The repo includes a `vercel.json` at the root that points Vercel to the `frontend/` subdirectory automatically.
+
 ```bash
-cd frontend
+# From repo root
 vercel --prod
 ```
 
-Set `NEXT_PUBLIC_API_URL` to your Railway (or other) backend URL.
+Or connect the GitHub repo in the Vercel dashboard — it will detect `vercel.json` and configure itself.
+
+**Required environment variables** (Vercel → Project Settings → Environment Variables):
+
+| Variable | Value |
+|----------|-------|
+| `NEXT_PUBLIC_API_URL` | Your Railway backend URL |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard (optional) |
+| `CLERK_SECRET_KEY` | Clerk dashboard (optional) |
+
+> After setting variables, trigger a **Redeploy** so they are baked into the build.
 
 ---
 

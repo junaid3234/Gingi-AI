@@ -21,6 +21,7 @@ limiter = Limiter(key_func=get_remote_address, default_limits=[f"{settings.rate_
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    settings.warn_insecure()
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)

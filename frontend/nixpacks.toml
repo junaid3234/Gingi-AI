@@ -1,0 +1,16 @@
+# Nixpacks config for Railway frontend deployment
+# Set NEXT_PUBLIC_API_URL in Railway → frontend service → Variables
+# It must be present at BUILD TIME (not just runtime) because Next.js
+# bakes NEXT_PUBLIC_* vars into the JS bundle during `next build`.
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci --legacy-peer-deps"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run start"

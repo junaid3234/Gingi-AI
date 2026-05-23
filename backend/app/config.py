@@ -1,16 +1,26 @@
+import logging
 import os
 from functools import lru_cache
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+logger = logging.getLogger(__name__)
+
+_INSECURE_SECRETS = {
+    "dev-secret-change-in-production-min-32-chars",
+    "change-me-in-production",
+    "local-dev-secret-32-chars-minimum!!",
+    "replace-with-a-random-32-char-secret",
+}
+
 
 def normalize_database_url(url: str) -> str:
     """Convert Railway/Heroku postgres URLs to async SQLAlchemy format."""
     if url.startswith("postgres://"):
-        return "postgresql+asyncpg://" + url[len("postgres://") :]
+        return "postgresql+asyncpg://" + url[len("postgres://"):]
     if url.startswith("postgresql://"):
-        return "postgresql+asyncpg://" + url[len("postgresql://") :]
+        return "postgresql+asyncpg://" + url[len("postgresql://"):]
     return url
 
 
@@ -37,6 +47,21 @@ class Settings(BaseSettings):
     @classmethod
     def _normalize_db(cls, value: str) -> str:
         return normalize_database_url(value)
+
+    def warn_insecure(self) -> None:
+        """Log warnings for insecure production settings."""
+        is_sqlite = "sqlite" in self.database_url
+        if self.jwt_secret in _INSECURE_SECRETS:
+            level = logger.warning if is_sqlite else logger.error
+            level(
+                "⚠️  JWT_SECRET is set to an insecure default. "
+                "Set a strong random secret via the JWT_SECRET environment variable."
+            )
+        if not is_sqlite and "localhost" in self.cors_origins:
+            logger.warning(
+                "⚠️  CORS_ORIGINS contains 'localhost' but DATABASE_URL points to a remote DB. "
+                "Set CORS_ORIGINS to your production frontend URL."
+            )
 
 
 @lru_cache
