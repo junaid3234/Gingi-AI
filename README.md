@@ -1,6 +1,6 @@
 # GingiAI — AI Gingivitis Screening Platform
 
-> AI-assisted gingivitis screening, severity prediction, and personalized oral health recommendations — built by **[JVX Labs](https://jvxlabs.com)**.
+> AI-assisted gingivitis screening, severity prediction, and personalized oral health recommendations — built by **[JVX Labs](https://jvx-labs.lovable.app)**.
 
 ![GingiAI](https://img.shields.io/badge/GingiAI-v1.0-teal?style=flat-square)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
@@ -148,4 +148,4 @@ GingiAI is not a medical diagnosis tool. Results are for educational and prevent
 
 ## License
 
-MIT © 2025 [JVX Labs](https://jvxlabs.com)
+MIT © 2026 [JVX Labs](https://jvx-labs.lovable.app)
